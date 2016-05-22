@@ -3,20 +3,6 @@ import types
 import jinja2
 import yaml
 import filters
-
-def _parse_env(data_string):
-    """ Parse variables from string in env format
-
-    """
-    if len(data_string) == 0:
-        return dict()
-    data = filter(
-        lambda l: len(l) == 2 ,(
-            map(str.strip, line.split('='))
-            for line in data_string.split("\n")
-        )
-    )
-    return {item[0] : item[1] for _, item in enumerate(data)}
     
 
 class Context:
@@ -57,7 +43,8 @@ class Context:
             additional_context (dict): Context to be used in the templates
         
         Raises:
-            TemplateError: If context file contains invalid syntax
+            TemplateError: If jinja2 syntax is invalid
+            YAMLError: If yaml syntax is invalid
             
         """
         for fpath in paths:
@@ -74,8 +61,15 @@ class Context:
                         file_content = env.from_string(file_content) \
                             .render(additional_context).encode('utf-8')
                     except Exception as e:
-                        raise jinja2.exceptions.TemplateError("Error in context file '{0}': {1}".format(fpath, e.message))
-                parsed_context = yaml.load(file_content)
+                        raise jinja2.exceptions.TemplateError("Jinja2 error in context file '{0}': {1}".format(fpath, e.message))
+                try:
+                    parsed_context = yaml.load(file_content)
+                except yaml.YAMLError, e:
+                    if hasattr(e, 'problem_mark'):
+                        mark = e.problem_mark
+                        raise yaml.YAMLError("Error parsing the yaml context file '{0}' at line {1} column {2}".format(fpath, mark.line+1, mark.column+1))
+                    else:
+                        raise yaml.YAMLError("Error parsing the yaml context file '{0}': {1}".format(fpath, e.message))
                 self.context = self._merge_dicts(self.context, parsed_context)
     
     def _get_additional_context(self, environ, cli_vars):
@@ -91,8 +85,22 @@ class Context:
         """
         additional_context = {'env': environ }
         cli_vars_string = "\n".join(cli_vars)
-        additional_context = self._merge_dicts(additional_context, _parse_env(cli_vars_string))
+        additional_context = self._merge_dicts(additional_context, self._parse_env_from_string(cli_vars_string))
         return additional_context
+
+    def _parse_env_from_string(self, data_string):
+        """ Parse variables from string in env format
+    
+        """
+        if len(data_string) == 0:
+            return dict()
+        data = filter(
+            lambda l: len(l) == 2 ,(
+                map(str.strip, line.split('='))
+                for line in data_string.split("\n")
+            )
+        )
+        return {item[0] : item[1] for _, item in enumerate(data)}
 
     def _merge_dicts(self, x, y):
         """ Recursivly merges two dicts
