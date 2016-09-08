@@ -11,7 +11,7 @@ dynamic:
   var5: {{ 1.0 if VAR5 == 'True' else 2.0 }}
 
 # When True an error will be raised if the given type of VARXX in 'defaults' does not match the default value
-# (default: True) 
+# (default: True)
 complain_wrong_type: True
 
 # short way of setting defaults and parsing value type
