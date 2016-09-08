@@ -1,16 +1,12 @@
 import os
 import jinja2
-
 import filters
 
-from exceptions import FileExistsError, NotAFileError, NotADirectoryError
-
-        
 class TemplateFile:
     """ Represents a template file to be rendered with jinja2
     
     Args:
-        path (list): List containing all context files
+        path (str): Path to file
         delete_after (bool): Delete the template files after rendering
         force_replacement (bool): Replace rendered files when they already exist
     
@@ -22,9 +18,9 @@ class TemplateFile:
     _force_replacement = False
     
     def __init__(self, path, output_dir, delete_after=False, force_replacement=False):
+        self._path = os.path.dirname(path)
         if not os.path.isfile(path):
-            print path
-            raise jinja2.TemplateNotFound(path)
+            raise IOError(self._format_error("File does not exist", "Loading file"))
         self._path = os.path.dirname(path)
         self._output_dir = output_dir
         self._name = os.path.basename(path)
@@ -69,9 +65,9 @@ class TemplateFile:
         
         # render file with jinja2
         try:
-            file_content = env.from_string(self._read_template_file()).render(context).encode('utf-8')
+            file_content = env.from_string(self._read_template_file()).render(context).encode('utf-8') + "\n"
         except Exception as e:
-            raise jinja2.exceptions.TemplateError("Error in template file '{0}': {1}".format(self.get_file_path(), e.message))
+            raise jinja2.exceptions.TemplateError(self._format_error("Jinja2 template error: {0}".format(e.message), "Rendering template file"))
         
         # Write rendered file
         self._write_rendered_file(file_content)
@@ -118,12 +114,12 @@ class TemplateFile:
         if os.path.exists(rendered_file_path):
             if os.path.isfile(rendered_file_path):
                 if not self._force_replacement:
-                    raise FileExistsError(self.get_rendered_file_path())
+                    raise IOError(self._format_error("Cannot save rendered file, because it already exists: {0}\nUse '-f' flag to force overwriting the file".format(self.get_rendered_file_path()), "Saving rendered file"))
             else:
-                raise NotAFileError(self.get_rendered_file_path())
+                raise IOError(self._format_error("Cannot save rendered file, because it target is a dir: {0}".format(self.get_rendered_file_path()), "Saving rendered file"))
         elif os.path.exists(rendered_file_dir_path):
             if not os.path.isdir(rendered_file_dir_path):
-                raise NotADirectoryError(self.get_rendered_file_path())
+                raise IOError(self._format_error("Cannot save rendered file, because it has an invalid path: {0}".format(self.get_rendered_file_path()), "Saving rendered file"))
         else: 
             os.makedirs(rendered_file_dir_path, 0755)
         
@@ -134,3 +130,15 @@ class TemplateFile:
         permisson_mask = self._get_template_file_permission_mask()
         os.chmod(rendered_file_path, permisson_mask)
 
+    def _format_error(self, msg, task):
+        """ Formats an error for pretty cli output
+        
+        Args:
+            msg (str): The error message
+            task (str): Task in which the error occurred 
+        
+        Returns:
+            str.  Formatted error message
+            
+        """
+        return "{0}\n  Context  : Context File\n  Task     : {1}\n  File path: {2}".format(msg, task, self.get_file_path())

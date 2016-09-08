@@ -1,9 +1,4 @@
-import types
-
-import jinja2
-import yaml
-import filters
-    
+from .contextfile import merge_dicts
 
 class Context:
     """ Represents a context creator for a jinja2
@@ -17,13 +12,15 @@ class Context:
     """
     context = dict()
     
-    def __init__(self, paths, environ, cli_vars, prerender_context):
+    def __init__(self, context_files, environ, cli_vars, prerender_context):
         # parse additional variables
-        additional_context = self._get_additional_context(environ, cli_vars)
-        self._read_from_files(paths, prerender_context, additional_context)
-        
+        cli_context = self._parse_cli_context(cli_vars)
+        env_context = merge_dicts(environ, cli_context)
+        for context_file in context_files:
+            self.context = merge_dicts(self.context, context_file.get_context(env_context))
+                
         # merge additional context into global context
-        self.context = self._merge_dicts(self.context, additional_context)
+        self.context = merge_dicts(self.context, {'env': env_context })
     
     def get(self):
         """ Gets the context to be used with jinja2
@@ -34,105 +31,23 @@ class Context:
         """
         return self.context
     
-    def _read_from_files(self, paths, prerender, additional_context):
-        """ Read context from files
+    def _parse_cli_context(self, cli_vars):
+        """ Gets variables from command line args
         
         Args:
-            paths (list): List of all files to be read in
-            prerender_context (bool): When true render the context form the files
-            additional_context (dict): Context to be used in the templates
-        
-        Raises:
-            TemplateError: If jinja2 syntax is invalid
-            YAMLError: If yaml syntax is invalid
-            
-        """
-        for fpath in paths:
-            with open(fpath) as f:
-                file_content = f.read()
-                if prerender:
-                    env = jinja2.Environment(
-                        undefined=jinja2.Undefined
-                    )
-                    # Register additional filters
-                    env.filters['required'] = filters.required
-                    try:
-                        # render file with jinja2
-                        file_content = env.from_string(file_content) \
-                            .render(additional_context).encode('utf-8')
-                    except Exception as e:
-                        raise jinja2.exceptions.TemplateError("Jinja2 error in context file '{0}': {1}".format(fpath, e.message))
-                try:
-                    parsed_context = yaml.load(file_content)
-                except yaml.YAMLError, e:
-                    if hasattr(e, 'problem_mark'):
-                        mark = e.problem_mark
-                        raise yaml.YAMLError("Error parsing the yaml context file '{0}' at line {1} column {2}".format(fpath, mark.line+1, mark.column+1))
-                    else:
-                        raise yaml.YAMLError("Error parsing the yaml context file '{0}': {1}".format(fpath, e.message))
-                self.context = self._merge_dicts(self.context, parsed_context)
-    
-    def _get_additional_context(self, environ, cli_vars):
-        """ Gets variables from command line args and environment
-        
-        Args:
-            environ (dict): Environment variables
             cli_vars (list): Variables passed as command line arguments
         
         Returns:
-            dict.  All additional context
+            dict.  Context passed from cli
             
         """
-        additional_context = {'env': environ }
-        cli_vars_string = "\n".join(cli_vars)
-        additional_context = self._merge_dicts(additional_context, self._parse_env_from_string(cli_vars_string))
-        return additional_context
-
-    def _parse_env_from_string(self, data_string):
-        """ Parse variables from string in env format
-    
-        """
-        if len(data_string) == 0:
+        if len(cli_vars) == 0:
             return dict()
         data = filter(
             lambda l: len(l) == 2 ,(
-                map(str.strip, line.split('='))
-                for line in data_string.split("\n")
+                map(str.strip, var.split('='))
+                for var in cli_vars
             )
         )
         return {item[0] : item[1] for _, item in enumerate(data)}
-
-    def _merge_dicts(self, x, y):
-        """ Recursivly merges two dicts
-        
-        When keys exist in both the value of 'y' is used. 
-        
-        Args:
-            x (dict): First dict
-            y (dict): Second dict
-        
-        Returns:
-            dict.  Merged dict containing values of x and y
-            
-        """
-        # when one of the dicts is empty, than just return the other one
-        if type(x) is types.NoneType:
-            if type(y) is types.NoneType:
-                return dict()
-            else:
-                return y
-        if type(y) is types.NoneType:
-            if type(x) is types.NoneType:
-                return dict()
-            else:
-                return x
-        
-        merged = dict(x,**y)
-        xkeys = x.keys()
     
-        # update 'branches' of the individual keys 
-        for key in xkeys:
-            # if this key is a dictionary, recurse                                  
-            if type(x[key]) is types.DictType and y.has_key(key):
-                merged[key] = self._merge_dicts(x[key],y[key])
-        return merged

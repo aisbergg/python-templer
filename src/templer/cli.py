@@ -4,8 +4,8 @@ import sys
 
 from jinja2 import __version__ as jinja2_version
 from . import __version__
-from .exceptions import NotADirectoryError, FileNotFoundError
 from .templatefile import TemplateFile
+from .contextfile import ContextFile
 from .context import Context 
 
 
@@ -56,9 +56,9 @@ def _get_template_files(path, root_output_dir, delete_after, force_replacement):
         else:
             abs_paths,rel_paths = create_file_list(path, ".j2")
             if len(abs_paths) == 0:
-                raise FileNotFoundError("No Template files (.j2) found in search path '{0}'".format(path))
+                raise IOError("No Template files (.j2) found in search path '{0}'".format(path))
     else:
-        raise FileNotFoundError("Template file: {0}".format(path))
+        raise IOError("Template file not found: {0}".format(path))
     
     template_files = []
     for i in range(0, len(abs_paths)):
@@ -84,17 +84,20 @@ def _get_context(path, environ, cli_vars, prerender_context):
         dict.  The jinja2 context
         
     """
+    context_files = []
     if os.path.exists(path):
         if os.path.isfile(path):
-            flist = [os.path.abspath(path)]
+            context_files.append(ContextFile(os.path.abspath(path)))
         else:
             flist,_ = create_file_list(path, ".yml", ".yaml")
             if len(flist) == 0:
-                raise FileNotFoundError("No Context files (.yml, .yaml) found in search path '{0}'".format(path))
+                raise IOError("No Context files (.yml, .yaml) found in search path '{0}'".format(path))
+            for f in flist:
+                context_files.append(ContextFile(f))
     else:
-        raise FileNotFoundError("Context file: {0}".format(path))
+        raise IOError("Context file not found: {0}".format(path))
     
-    context = Context(flist, environ, cli_vars, prerender_context)
+    context = Context(context_files, environ, cli_vars, prerender_context)
     return context.get()
 
 
@@ -142,7 +145,7 @@ def render_templates(environ, cwd, argv):
         else:
             root_output_dir = os.path.join(cwd, args.root_output_dir)
         if os.path.exists(root_output_dir) and not os.path.isdir(root_output_dir):
-            raise NotADirectoryError(root_output_dir)
+            raise IOError("Path is not a directory".format(root_output_dir))
     
     # Get context
     context = _get_context(args.context, environ, args.additional_variables, args.prerender_context)
@@ -167,5 +170,5 @@ def main():
         )
         exit(0)
     except Exception as e:
-        sys.stderr.write(e.message + "\n")
+        sys.stderr.write('\033[91m' + e.message + '\033[0m' + "\n")
         exit(1)

@@ -1,0 +1,15 @@
+[pre]
+a = {{ predefined.var1 }}
+b = {{ predefined.var2 }}
+c = {{ 'on' if predefined.var3 else 'off' }}
+
+[dyn]
+d = {{ dynamic.var4 }}
+e = {{ dynamic.var5 }}
+
+[dft]
+f = {{ VAR6 }}
+g = {{ 'ok' if VAR7 else 'fail' }}
+h = {{ 'to small' if VAR8 <= 1 else 'just fine' }}
+i = {{ VAR9 }}
+j = {{ VAR10 }}
