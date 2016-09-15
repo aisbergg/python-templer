@@ -188,64 +188,119 @@ class ContextFile:
             complain_wrong_type = True if not type(file_context["complain_wrong_type"]) == bool else file_context["complain_wrong_type"]
         else:
             complain_wrong_type = True
-        defaults_list = []
-        if file_context.has_key("defaults"):
-            defaults = file_context["defaults"]
-            dlist = []
-            if type(defaults) == list:
-                for item in defaults:
-                    if type(item) == dict and len(item) == 1:
-                        dlist.append((item.keys()[0], item.values()[0]))
+        
+        variation = None
+        if file_context.has_key("variation"):
+            file_variation = file_context["variation"]
+            if type(file_variation) == str:
+                vname = file_variation.strip()
+                if env_context.has_key(vname):
+                    variation = str(env_context[vname])
+            elif type(file_variation) == dict:
+                keys = file_variation.keys()
+                if len(keys) == 1:
+                    vname = keys[0]
+                    vval = file_variation[keys[0]]
+                    if type(vval) != list:
+                        raise TypeError(self._format_error("The value of '{0}' must be of type 'list'".format(vname), "Parse 'variation'"))
+                    if env_context.has_key(vname):
+                        envval = str(env_context[vname]).strip()
+                        if envval in vval:
+                            variation = envval
+                        elif complain_wrong_type:
+                            raise TypeError(self._format_error("'{0}' must be one of the following strings: {1}\nGiven string: {2}".format(vname, ", ".join(str(v) for v in vval), envval), "Parse 'variation'"))
                     else:
-                        raise TypeError(self._format_error("Entries of 'defaults' need be of the type 'dict' and contain only one key", "Getting default values"))
-            elif type(defaults) == dict:
-                dlist = defaults.items()
+                        variation = str(vval[0]).strip()
+                else:
+                    raise TypeError(self._format_error("When using value type 'dict' it must contain only one entry", "Parse 'variation'"))
             else:
-                raise TypeError(self._format_error("'defaults' must be one of the following types: list, dict", "Getting default values"))
+                raise TypeError(self._format_error("Value of 'variation' must be of type 'str' or 'dict'", "Parse 'variation'"))
+        
+        processed_defaults = self._get_defaults_variation(file_context, env_context, None, complain_wrong_type)
+        if variation is not None:
+            processed_defaults = merge_dicts(processed_defaults, 
+                                             self._get_defaults_variation(file_context, env_context, variation, complain_wrong_type))
+        return processed_defaults
+        
+    def _get_defaults_variation(self, file_context, env_context, variation, complain_wrong_type):
+        """ Gets the default values for unset variables and parses the value types for given ones
+        
+        Args:
+            file_context (dict): Contains the default variables
+            env_context (dict): Given Variables
+            variation (str): Variation of 'defaults'
+            complain_wrong_type (bool): Raise an error if given values does not match the type of the default one  
+        
+        Returns:
+            dict.  Context out of the specific variation of 'defaults'
             
-            for var_name, var_default in dlist:
+        """
+        if variation is None:
+            key_name = "defaults"
+        else:
+            key_name = "defaults_" + variation
+            
+        if file_context.has_key(key_name):
+            processed_defaults_list = []
+            
+            file_defaults = file_context[key_name]
+            input_defaults_list = []
+            if type(file_defaults) == list:
+                for item in file_defaults:
+                    if type(item) == dict and len(item) == 1:
+                        input_defaults_list.append((item.keys()[0], item.values()[0]))
+                    else:
+                        raise TypeError(self._format_error("Entries of '{0}' need be of the type 'dict' and contain only one key".format(key_name), "Getting values from '{0}'".format(key_name)))
+            elif type(file_defaults) == dict:
+                input_defaults_list = file_defaults.items()
+            else:
+                raise TypeError(self._format_error("'{0}' must be one of the following types: list, dict".format(key_name), "Getting values from '{0}'".format(key_name)))
+            
+            for var_name, var_default in input_defaults_list:
                 if var_default == None:
-                    raise TypeError(self._format_error("Type of '{0}' must not be 'None'".format(var_name), "Getting default values"))
+                    raise TypeError(self._format_error("Type of '{0}' must not be 'None'".format(var_name), "Getting values from '{0}'".format(key_name)))
                 
                 if env_context.has_key(var_name):
                     if type(var_default) == str:
-                        defaults_list.append([var_name, env_context[var_name]])
+                        processed_defaults_list.append([var_name, env_context[var_name]])
                     elif type(var_default) == bool:
                         try:
                             val = self._parse_bool(env_context[var_name], var_default, complain_wrong_type)
-                            defaults_list.append([var_name, val])
+                            processed_defaults_list.append([var_name, val])
                         except TypeError:
-                            raise TypeError(self._format_error("Type of '{0}' must be 'bool'".format(var_name), "Getting default values"))
+                            raise TypeError(self._format_error("Type of '{0}' must be 'bool'".format(var_name), "Getting values from '{0}'".format(key_name)))
                     elif type(var_default) == int:
                         try:
                             val = self._parse_number(env_context[var_name], int, var_default, complain_wrong_type)
-                            defaults_list.append([var_name, val])
+                            processed_defaults_list.append([var_name, val])
                         except TypeError:
-                            raise TypeError(self._format_error("Type of '{0}' must be 'int'".format(var_name), "Getting default values"))
+                            raise TypeError(self._format_error("Type of '{0}' must be 'int'".format(var_name), "Getting values from '{0}'".format(key_name)))
                     elif type(var_default) == float:
                         try:
                             val = self._parse_number(env_context[var_name], float, var_default, complain_wrong_type)
-                            defaults_list.append([var_name, val])
+                            processed_defaults_list.append([var_name, val])
                         except TypeError:
-                            raise TypeError(self._format_error("Type of '{0}' must be 'float'".format(var_name), "Getting default values"))
+                            raise TypeError(self._format_error("Type of '{0}' must be 'float'".format(var_name), "Getting values from '{0}'".format(key_name)))
                     elif type(var_default) == list:
                         if len(var_default) == 0:
-                            raise TypeError(self._format_error("List of '{0}' must contain at least one entry".format(var_name), "Getting default values"))
+                            raise TypeError(self._format_error("List of '{0}' must contain at least one entry".format(var_name), "Getting values from '{0}'".format(key_name)))
                         val = env_context[var_name].strip()
                         if val in var_default:
-                            defaults_list.append([var_name, val])
+                            processed_defaults_list.append([var_name, val])
                         elif complain_wrong_type:
-                            raise TypeError(self._format_error("'{0}' must be one of the following strings: {1}\nGiven string: {2}".format(var_name, ", ".join(str(v) for v in var_default), val), "Getting default values"))
+                            raise TypeError(self._format_error("'{0}' must be one of the following strings: {1}\nGiven string: {2}".format(var_name, ", ".join(str(v) for v in var_default), val), "Getting values from '{0}'".format(key_name)))
                         else:
-                            defaults_list.append([var_name, var_default[0]])
+                            processed_defaults_list.append([var_name, var_default[0]])
                     else:
-                        raise TypeError(self._format_error("'{0}' must be one of the following types: str, bool, int, float, list\nGiven type: {1}".format(var_name, type(var_default)), "Getting default values"))
+                        raise TypeError(self._format_error("'{0}' must be one of the following types: str, bool, int, float, list\nGiven type: {1}".format(var_name, type(var_default)), "Getting values from '{0}'".format(key_name)))
                 elif type(var_default) == list:
-                    defaults_list.append([var_name, var_default[0]])
+                    processed_defaults_list.append([var_name, var_default[0]])
                 else:
-                    defaults_list.append([var_name, var_default])
+                    processed_defaults_list.append([var_name, var_default])
             
-            return dict(defaults_list)
+            return dict(processed_defaults_list)
+        else:
+            return None
         
     def _format_error(self, msg, task):
         """ Formats an error for pretty cli output

@@ -18,7 +18,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='templer',
-    version='0.3.0',
+    version='0.3.1',
     author='Andre Lehmann',
     author_email='aisberg@posteo.de',
 

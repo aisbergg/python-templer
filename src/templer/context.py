@@ -16,8 +16,10 @@ class Context:
         # parse additional variables
         cli_context = self._parse_cli_context(cli_vars)
         env_context = merge_dicts(environ, cli_context)
+        
         for context_file in context_files:
-            self.context = merge_dicts(self.context, context_file.get_context(env_context))
+            self.context = merge_dicts(self.context,
+                                       context_file.get_context(env_context))
                 
         # merge additional context into global context
         self.context = merge_dicts(self.context, {'env': env_context })
