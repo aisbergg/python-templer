@@ -90,6 +90,7 @@ def _get_context(path, environ, cli_vars, prerender_context):
             context_files.append(ContextFile(os.path.abspath(path)))
         else:
             flist,_ = create_file_list(path, ".yml", ".yaml")
+            flist.sort()
             if len(flist) == 0:
                 raise IOError("No Context files (.yml, .yaml) found in search path '{0}'".format(path))
             for f in flist:
