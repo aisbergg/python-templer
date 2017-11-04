@@ -101,7 +101,7 @@ class ContextFile:
                 raise jinja2.exceptions.TemplateError(self._format_error("Jinja2 template error: {0}".format(e.message), "Prerendering"))
         
         try:
-            parsed_context = yaml.load(file_content)
+            parsed_context = yaml.load(file_content) or dict()
         except yaml.YAMLError, e:
             if hasattr(e, 'problem_mark'):
                 mark = e.problem_mark
