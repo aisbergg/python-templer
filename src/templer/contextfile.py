@@ -16,17 +16,12 @@ def merge_dicts(x, y):
         dict.  Merged dict containing values of x and y
         
     """
-    # when one of the dicts is empty, than just return the other one
-    if type(x) is None:
-        if type(y) is None:
-            return dict()
-        else:
-            return y
-    if type(y) is None:
-        if type(x) is None:
-            return dict()
-        else:
-            return x
+    if x is None and y is None:
+        return dict()
+    if x is None:
+        return y
+    if y is None:
+        return x
     
     merged = dict(x,**y)
     xkeys = x.keys()
