@@ -1,5 +1,15 @@
 # Templer - templating with Jinja2
 
+This is a Python module for rendering template files using [Jinja2](http://jinja.pocoo.org/). Variables can be passed as command line arguments or defined in a context file.
+
+Features:
+* templating using Jinja2
+* context files are written in YAML
+* use multiple context files to render multiple templates at ones
+* render jinja2 context files themselves before using those to render the templates
+* easy definition of default values
+
+This module is widely used in those [Dockerfiles](https://github.com/Aisbergg/dockerfiles)
 
 ## Usage
 

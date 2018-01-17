@@ -3,14 +3,14 @@
 Templer
 =======
 
-Create files based on templates and the power of [Jinja2](http://jinja.pocoo.org/).
+Render template files with [Jinja2](http://jinja.pocoo.org/). Variables can be passed as command line arguments or defined in a context file.
 
 Features:
-
 * templating using Jinja2
-* render multiple templates at ones
+* context files are written in YAML
+* use multiple context files to render multiple templates at ones
 * render jinja2 context files themselves before using those to render the templates
-* use of YAML files as sources of variables
+* easy definition of default values
 
 """
 
@@ -24,7 +24,7 @@ setup(
 
     url='',
     license='LGPL',
-    description='Create files based on templates and the power of Jinja2.',
+    description='Render template files with Jinja2.',
     long_description=__doc__,
     keywords=['Jinja2', 'templating', 'command-line', 'CLI'],
 
