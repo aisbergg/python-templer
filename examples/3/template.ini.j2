@@ -1,0 +1,21 @@
+[static]
+a = {{ static.var1 }}
+b = {{ static.var2 }}
+c = {{ 'on' if static.var3 else 'off' }}
+
+[dynamic]
+d = {{ dynamic.var4 }}
+e = {{ dynamic.var5 }}
+
+[defaults]
+f = {{ VAR6 }}
+g = {{ 'ok' if VAR7 else 'fail' }}
+h = {{ 'to small' if VAR8 <= 1 else 'just fine' }}
+i = {{ VAR9 }}
+j = "{{ ', '.join(VAR10)|safe }}"
+
+[defaults_special]
+k = {{ VAR11 }}
+l = "{{ ' and '.join(VAR12)|safe }}"
+m = {{ VAR13 if VAR13 is defined }}
+n = {{ VAR14 if VAR14 is defined  }}

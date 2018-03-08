@@ -1,0 +1,201 @@
+---
+
+# Load Dynamic Nginx Modules
+NGINX_LOAD_NDK_HTTP_MODULE: True
+NGINX_LOAD_NGX_HTTP_LUA_MODULE: True
+NGINX_LOAD_NGX_HTTP_HEADERS_MORE_FILTER_MODULE: True
+
+PHPMYADMIN_BLOWFISH_SECRET: "{{ BLOWFISH_SECRET }}"
+
+defaults:
+  ######################################
+  ## Nginx
+  ######################################
+  NGINX_REDIRECT_TO_FIRST_DOMAIN: False
+  NGINX_WORKER_CONNECTIONS: 512
+  NGINX_WORKER_OPENED_FILES: 2000
+  NGINX_FASTCGI_READ_TIMEOUT: 600
+  MAX_UPLOAD_FILESIZE: 1024M
+  NGINX_CONN_LIMIT_PER_IP: 10
+  NGINX_REQ_LIMIT_PER_IP_RATE: 10
+  NGINX_REQ_LIMIT_PER_IP_BURST: 20
+  NGINX_TLS_ONLY: True
+
+  ######################################
+  ## PHP
+  ######################################
+  PHP_MAX_EXECUTION_TIME: 600
+  PHP_MAX_INPUT_TIME: 100
+  PHP_MEMORY_LIMIT: "128M"
+  PHP_MAX_FILE_UPLOADS: 10
+
+  ######################################
+  ## phpMyAdmin
+  ######################################
+  # server config
+  PHPMYADMIN_AUTH_TYPE:
+    type: choice
+    default: cookie
+    case_sensitive: False
+    choices:
+      - "config"
+      - "cookie"
+      - "http"
+      - "signon"
+  PHPMYADMIN_HOST: "mysql"
+  PHPMYADMIN_SOCKET: ""
+  PHPMYADMIN_COMPRESS: False
+  PHPMYADMIN_ALLOWNOPASSWORD: False
+  PHPMYADMIN_ENABLE_BOOKMARK: False
+  PHPMYADMIN_ENABLE_RELATION: False
+  PHPMYADMIN_ENABLE_TABLE_INFO: False
+  PHPMYADMIN_ENABLE_TABLE_COORDS: False
+  PHPMYADMIN_ENABLE_PDF_PAGES: False
+  PHPMYADMIN_ENABLE_COLUMN_INFO: False
+  PHPMYADMIN_ENABLE_HISTORY: False
+  PHPMYADMIN_ENABLE_TABLE_UIPREFS: False
+  PHPMYADMIN_ENABLE_TRACKING: False
+  PHPMYADMIN_ENABLE_USERCONFIG: False
+  PHPMYADMIN_ENABLE_RECENT: False
+  PHPMYADMIN_ENABLE_FAVORITE: False
+  PHPMYADMIN_ENABLE_USERS: False
+  PHPMYADMIN_ENABLE_USERGROUPS: False
+  PHPMYADMIN_ENABLE_NAVIGATIONHIDING: False
+  PHPMYADMIN_ENABLE_SAVEDSEARCHES: False
+  PHPMYADMIN_ENABLE_CENTRAL_COLUMNS: False
+  PHPMYADMIN_ENABLE_DESIGNER_SETTINGS: False
+  PHPMYADMIN_ENABLE_EXPORT_TEMPLATES: False
+
+  # global config
+  PHPMYADMIN_UPLOADDIR: "/var/lib/mysql_dumps"
+  PHPMYADMIN_SAVEDIR: "/var/lib/mysql_dumps"
+  PHPMYADMIN_DEFAULTCONNECTIONCOLLATION: "utf8_unicode_ci"
+  PHPMYADMIN_ROWACTIONTYPE:
+    type: choice
+    default: both
+    case_sensitive: False
+    choices:
+      - "both"
+      - "icons"
+      - "text"
+  PHPMYADMIN_SHOWALL: False
+  PHPMYADMIN_MAXROWS:
+    type: choice
+    default: "50"
+    choices:
+      - "50"
+      - "25"
+      - "100"
+      - "250"
+      - "500"
+  PHPMYADMIN_PROTECTBINARY:
+    type: choice
+    default: blob
+    case_sensitive: False
+    choices:
+      - "blob"
+      - "false"
+      - "noblob"
+      - "all"
+  PHPMYADMIN_DEFAULTLANG:
+    type: choice
+    default: en
+    case_sensitive: False
+    choices:
+      - "af"
+      - "ar"
+      - "az"
+      - "be"
+      - "be@latin"
+      - "bg"
+      - "bn"
+      - "br"
+      - "brx"
+      - "bs"
+      - "ca"
+      - "ckb"
+      - "cs"
+      - "cy"
+      - "da"
+      - "de"
+      - "el"
+      - "en_GB"
+      - "en"
+      - "eo"
+      - "es"
+      - "et"
+      - "eu"
+      - "fa"
+      - "fi"
+      - "fil"
+      - "fr"
+      - "fy"
+      - "gl"
+      - "gu"
+      - "he"
+      - "hi"
+      - "hr"
+      - "hu"
+      - "hy"
+      - "ia"
+      - "id"
+      - "ig"
+      - "it"
+      - "ja"
+      - "ka"
+      - "kab"
+      - "kk"
+      - "km"
+      - "kn"
+      - "ko"
+      - "ksh"
+      - "ky"
+      - "li"
+      - "lt"
+      - "lv"
+      - "mk"
+      - "ml"
+      - "mn"
+      - "ms"
+      - "nb"
+      - "ne"
+      - "nl"
+      - "pa"
+      - "pl"
+      - "pt_BR"
+      - "pt"
+      - "ro"
+      - "ru"
+      - "si"
+      - "sk"
+      - "sl"
+      - "sq"
+      - "sr"
+      - "sr@latin"
+      - "sv"
+      - "ta"
+      - "te"
+      - "th"
+      - "tk"
+      - "tr"
+      - "tt"
+      - "ug"
+      - "uk"
+      - "ur"
+      - "uz"
+      - "uz@latin"
+      - "vi"
+      - "vls"
+      - "zh_CN"
+      - "zh_TW"
+  PHPMYADMIN_PROPERTIESNUMCOLUMNS: 1
+  PHPMYADMIN_QUERYHISTORYDB: False
+  PHPMYADMIN_QUERYHISTORYMAX: 25
+  PHPMYADMIN_SENDERRORREPORTS:
+    type: choice
+    default: never
+    case_sensitive: False
+    choices:
+      - "always"
+      - "ask"
+      - "never"

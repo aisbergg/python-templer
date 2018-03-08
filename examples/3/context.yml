@@ -1,0 +1,53 @@
+---
+# see README.md for documentation
+
+static:
+  var1: "foo"
+  var2: 1
+  var3: True
+
+dynamic:
+  var4: "{{ VAR4 | default('bar') }}"
+  var5: {{ 1.0 if VAR5 == 'True' else 2.0 }}
+
+defaults:
+  VAR6: "some string"
+  VAR7: False
+  VAR8: 1
+  VAR9: 3.0
+  VAR10:
+    - "foo"
+    - "bar"
+    - "uff"
+  VAR11:
+    type: choice
+    default: b
+    case_sensitive: True
+    strip: True
+    choices:
+      - a
+      - b
+      - c
+  VAR12:
+    type: list
+    delimiter: ","
+    strip: True
+    default:
+      - a
+      - b
+      - c
+  SMALL:
+    type: variation
+    defaults:
+      VAR13: 1
+      VAR14: "a"
+  MEDIUM:
+    type: variation
+    defaults:
+      VAR13: 10
+      VAR14: "aaa"
+  LARGE:
+    type: variation
+    defaults:
+      VAR13: 100
+      VAR14: "aaaaaaaaa"
