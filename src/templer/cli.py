@@ -292,7 +292,7 @@ class ContextFile(object):
 
         if self.dynamic_contextfile:
             env = jinja2.Environment(
-                undefined=SilentUndefined if self.ignore_undefined_variables else jinja2.Undefined
+                undefined=SilentUndefined if self.ignore_undefined_variables else jinja2.StrictUndefined
             )
             # register additional filters
             env.filters = merge_dicts(env.filters, jinja_filter.filters)
@@ -300,8 +300,12 @@ class ContextFile(object):
                 # render file with jinja2
                 Log.debug("Rendering context file...")
                 file_content = env.from_string(file_content).render(variables)
+            except jinja2.UndefinedError as e:
+                raise jinja2.exceptions.UndefinedError(self._format_error("Variable {0}".format(str(e.message))))
+            except jinja2.TemplateError as e:
+                raise jinja2.exceptions.TemplateError(self._format_error("Template error: {0}".format(str(e))))
             except Exception as e:
-                raise jinja2.exceptions.TemplateError(self._format_error("Jinja2 template error: {0}".format(str(e))))
+                raise Exception(self._format_error("Error: {0}".format(str(e))))
 
         try:
             Log.debug("Parsing context file...")
@@ -601,7 +605,7 @@ class TemplateFile(object):
             file_content = f.read()
         
         env = jinja2.Environment(
-            undefined=SilentUndefined if self.ignore_undefined_variables else jinja2.Undefined
+            undefined=SilentUndefined if self.ignore_undefined_variables else jinja2.StrictUndefined
         )
         
         # Register additional filters
@@ -612,9 +616,11 @@ class TemplateFile(object):
             Log.debug("Rendering template file...")
             rendered_file_content = env.from_string(file_content).render(context) + u'\n'
         except jinja2.UndefinedError as e:
-            raise jinja2.UndefinedError(self._format_error(str(e.message)))
+            raise jinja2.exceptions.UndefinedError(self._format_error("Variable {0}".format(str(e.message))))
+        except jinja2.TemplateError as e:
+            raise jinja2.exceptions.TemplateError(self._format_error("Template error: {0}".format(str(e))))
         except Exception as e:
-            raise jinja2.exceptions.TemplateError(self._format_error("Jinja2 template error: {0}".format(str(e))))
+            raise Exception(self._format_error("Error: {0}".format(str(e))))
 
         # Write rendered file
         self._write_rendered_file(rendered_file_content)
