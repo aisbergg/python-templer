@@ -1,57 +1,47 @@
 #!/usr/bin/env python
-"""
-Templer
-=======
-
-Render template files with [Jinja2](http://jinja.pocoo.org/). Variables can be passed as command line arguments or defined in a context file.
-
-Features:
-* templating using Jinja2
-* context files are written in YAML
-* use multiple context files to render multiple templates at ones
-* render jinja2 context files themselves before using those to render the templates
-* easy definition of default values
-
-"""
+# -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
 
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst')
+except(IOError, ImportError):
+    long_description = open('README.md').read()
+
 setup(
-    name='templer',
-    version='0.3.2',
+    name='Templer',
+    version='1.0.0',
     author='Andre Lehmann',
     author_email='aisberg@posteo.de',
-
-    url='',
+    url='https://github.com/Aisbergg/python-templer',
     license='LGPL',
-    description='Render template files with Jinja2.',
-    long_description=__doc__,
+    description='Render template files with the power of Jinja2.',
+    long_description=long_description,
     keywords=['Jinja2', 'templating', 'command-line', 'CLI'],
-
     package_dir={ '': 'src' },
     packages=find_packages('src'),
-    scripts=[],
     entry_points={
         'console_scripts': [
-            'templer = templer:main',
+            'templer = templer:cli',
         ]
     },
-
     install_requires=[
-        'jinja2 >= 2.7.2',
-        'pyyaml >= 3.0.0',
+        'jinja2',
+        'pyyaml',
     ],
     include_package_data=True,
     zip_safe=False,
-
-    platforms='any',
+    platforms=['POSIX'],
     classifiers=[
         'Development Status :: 4 - Beta',
+        'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
-        'Operating System :: OS Independent',
-        'Topic :: Software Development',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 2',
+        'License :: OSI Approved :: LGPL License',
+        'Operating System :: POSIX',
+        'Programming Language :: Python :: 3 :: Only',
+        'Topic :: System :: Systems Administration',
+        'Topic :: Utilities',
     ],
 )
