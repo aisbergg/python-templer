@@ -566,7 +566,7 @@ class ContextFile(object):
             str: Formatted error message
 
         """
-        return "{0}\n  Scope:     Context File\n  File Path: {1}".format(msg, self.path)
+        return "{0}\n  Scope: Context File\n  Path:  {1}".format(msg, self.path)
 
 
 class TemplateFile(object):
@@ -671,7 +671,7 @@ class TemplateFile(object):
             str: Formatted error message
 
         """
-        return "{0}\n  Scope:     Template\n  File Path: {1}".format(msg, self.src)
+        return "{0}\n  Scope: Template File\n  Path:  {1}".format(msg, self.src)
 
 
 def cli():
