@@ -11,7 +11,7 @@ except(IOError, ImportError):
 
 setup(
     name='Templer',
-    version='1.0.0',
+    version='1.0.1',
     author='Andre Lehmann',
     author_email='aisberg@posteo.de',
     url='https://github.com/Aisbergg/python-templer',

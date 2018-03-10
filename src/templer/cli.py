@@ -519,7 +519,7 @@ class ContextFile(object):
 
             default = options['default']
             choices = options['choices']
-            case_sensitive = options['case_sensitive'] if 'case_sensitive' in options else True
+            case_sensitive = options['case_sensitive'] if 'case_sensitive' in options else False
             strip = options['strip'] if 'strip' in options else True
 
             if name in variables:
