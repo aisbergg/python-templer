@@ -146,43 +146,51 @@ class Templer(object):
                 raise ValueError(
                     "Destination exists and is not a directory. When multiple templates are specified the destination must be a directory")
 
-        destination_is_dir = not os.path.exists(
-            self.destination_path) or os.path.isdir(self.destination_path)
-
-        for path in self.template_paths:
-            path = os.path.abspath(path)
-            if os.path.isdir(path):
-                flist = self.find_files(
-                    path, file_extensions, relative_paths=True)
-                for frel in flist:
-                    fabs = os.path.join(path, frel)
-                    dest = os.path.join(
-                        self.destination_path, os.path.splitext(frel)[0])
-                    templates.append(
-                        TemplateFile(
-                            src=fabs,
-                            dest=dest,
-                            file_mode=self.file_mode,
-                            remove_template=self.remove_templates,
-                            force_overwrite=self.force_overwrite,
-                            ignore_undefined_variables=self.ignore_undefined_variables))
-            else:
-                dest = self.destination_path
-                if destination_is_dir:
+            for path in self.template_paths:
+                path = os.path.abspath(path)
+                if os.path.isdir(path):
+                    flist = self.find_files(
+                        path, file_extensions, relative_paths=True)
+                    for frel in flist:
+                        fabs = os.path.join(path, frel)
+                        dest = os.path.join(
+                            self.destination_path, os.path.splitext(frel)[0])
+                        templates.append(
+                            TemplateFile(
+                                src=fabs,
+                                dest=dest,
+                                file_mode=self.file_mode,
+                                remove_template=self.remove_templates,
+                                force_overwrite=self.force_overwrite,
+                                ignore_undefined_variables=self.ignore_undefined_variables))
+                else:
                     if path.endswith(tuple(file_extensions)):
                         filename = os.path.splitext(os.path.basename(path))[0]
                     else:
                         filename = os.path.basename(path)
-                    dest = os.path.join(self.destination_path, filename)
+                    templates.append(
+                        TemplateFile(
+                            src=path,
+                            dest=os.path.join(self.destination_path, filename),
+                            file_mode=self.file_mode,
+                            remove_template=self.remove_templates,
+                            force_overwrite=self.force_overwrite,
+                            ignore_undefined_variables=self.ignore_undefined_variables))
 
-                templates.append(
-                    TemplateFile(
-                        src=path,
-                        dest=dest,
-                        file_mode=self.file_mode,
-                        remove_template=self.remove_templates,
-                        force_overwrite=self.force_overwrite,
-                        ignore_undefined_variables=self.ignore_undefined_variables))
+        elif len(self.template_paths) == 1:
+            if os.path.exists(self.destination_path) and os.path.isdir(self.destination_path):
+                dest = os.path.join(self.destination_path,
+                                    os.path.basename(self.template_paths[0]))
+            else:
+                dest = self.destination_path
+            templates.append(
+                TemplateFile(
+                    src=self.template_paths[0],
+                    dest=dest,
+                    file_mode=self.file_mode,
+                    remove_template=self.remove_templates,
+                    force_overwrite=self.force_overwrite,
+                    ignore_undefined_variables=self.ignore_undefined_variables))
 
         if len(templates) == 0:
             raise IOError(
@@ -683,7 +691,8 @@ class TemplateFile(object):
                     "Destination exists and is not a file".format(self.dest)))
         else:
             # create dir
-            os.makedirs(os.path.dirname(self.dest), exist_ok=True)
+            if os.path.dirname(self.dest):
+                os.makedirs(os.path.dirname(self.dest), exist_ok=True)
 
         # write content to file
         Log.debug("Saving template file to: {0}".format(self.dest))
