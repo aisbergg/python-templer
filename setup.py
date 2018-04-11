@@ -2,25 +2,38 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
+from os import path
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError):
-    long_description = open('README.md').read()
+with open(path.join(path.abspath(path.dirname(__file__)), 'README.md')) as f:
+    long_description = f.read()
 
 setup(
     name='Templer',
-    version='1.0.2',
+    version='1.1.0',
     author='Andre Lehmann',
     author_email='aisberg@posteo.de',
     url='https://github.com/Aisbergg/python-templer',
     license='LGPL',
     description='Render template files with the power of Jinja2.',
     long_description=long_description,
-    keywords=['Jinja2', 'templating', 'command-line', 'CLI'],
-    package_dir={ '': 'src' },
-    packages=find_packages('src'),
+    long_description_content_type='text/markdown',
+    keywords='Jinja2 templating command-line CLI',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
+        'Operating System :: POSIX',
+        'Programming Language :: Python :: 3 :: Only',
+        'Topic :: System :: Systems Administration',
+        'Topic :: Utilities',
+    ],
+    project_urls={
+        'Bug Reports': 'https://github.com/Aisbergg/python-templer/issues',
+        'Source': 'https://github.com/Aisbergg/python-templer',
+    },
+    packages=find_packages(exclude=['examples']),
     entry_points={
         'console_scripts': [
             'templer = templer:cli',
@@ -33,15 +46,4 @@ setup(
     include_package_data=True,
     zip_safe=False,
     platforms=['POSIX'],
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: LGPL License',
-        'Operating System :: POSIX',
-        'Programming Language :: Python :: 3 :: Only',
-        'Topic :: System :: Systems Administration',
-        'Topic :: Utilities',
-    ],
 )
