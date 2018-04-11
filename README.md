@@ -29,9 +29,14 @@ The documentation of the Jinja2 syntax can be found [here](http://jinja.pocoo.or
 
 ## Installation
 
-To install *Templer* directly from Github:
+Install directly from Github:
 ```
-pip install git+https://github.com/Aisbergg/python-templer@v1.0.2
+pip install git+https://github.com/Aisbergg/python-templer@v1.0.4
+```
+
+Install from PyPi:
+```
+pip install Templer
 ```
 
 ## Usage
@@ -219,4 +224,4 @@ Filter | Description
 
 ## License
 
-Templer is released under the LGPL v3 License. See [LICENSE](LICENSE) for more information.
+Templer is released under the LGPL v3 License. See [LICENSE.txt](LICENSE.txt) for more information.
