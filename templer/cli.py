@@ -101,7 +101,7 @@ class Templer(object):
         if self.contextfile_paths:
             for p in self.contextfile_paths:
                 if os.path.isdir(p):
-                    flist = self.find_files(p, [".yml", ".yaml"])
+                    flist = sorted(self.find_files(p, [".yml", ".yaml"]))
                     for f in flist:
                         contextfiles.append(
                             ContextFile(
