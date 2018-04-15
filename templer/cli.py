@@ -340,6 +340,7 @@ class ContextFile(object):
             raise Exception(self._format_error("Error: {0}".format(str(e))))
 
         defaults = self._get_defaults(parsed_context, variables)
+        parsed_context.pop('defaults', None)
         return merge_dicts(parsed_context, defaults)
 
     def _get_defaults(self, file_context, variables):
