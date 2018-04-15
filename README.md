@@ -31,7 +31,7 @@ The documentation of the Jinja2 syntax can be found [here](http://jinja.pocoo.or
 
 Install directly from Github:
 ```
-pip install git+https://github.com/Aisbergg/python-templer@v1.1.0
+pip install git+https://github.com/Aisbergg/python-templer@v1.1.1
 ```
 
 Install from PyPi:
