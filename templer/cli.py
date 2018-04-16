@@ -574,7 +574,7 @@ class ContextFile(object):
 
             if name in variables:
                 if strip:
-                    return map((lambda s: s.strip()), variables[name].split(delimiter))
+                    return list(map((lambda s: s.strip()), variables[name].split(delimiter)))
                 else:
                     return variables[name].split(delimiter)
             else:

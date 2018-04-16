@@ -9,7 +9,7 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md')) as f:
 
 setup(
     name='Templer',
-    version='1.1.1',
+    version='1.1.2',
     author='Andre Lehmann',
     author_email='aisberg@posteo.de',
     url='https://github.com/Aisbergg/python-templer',
