@@ -315,6 +315,8 @@ class ContextFile(object):
                 # render file with jinja2
                 Log.debug("Rendering context file...")
                 file_content = env.from_string(file_content).render(variables)
+            except jinja_filter.MandatoryError as e:
+                raise   
             except jinja2.UndefinedError as e:
                 raise jinja2.exceptions.UndefinedError(
                     self._format_error("Variable {0}".format(str(e.message))))
@@ -654,6 +656,8 @@ class TemplateFile(object):
             Log.debug("Rendering template file...")
             rendered_file_content = env.from_string(
                 file_content).render(context) + u'\n'
+        except jinja_filter.MandatoryError as e:
+            raise
         except jinja2.UndefinedError as e:
             raise jinja2.exceptions.UndefinedError(
                 self._format_error("Variable {0}".format(str(e.message))))
