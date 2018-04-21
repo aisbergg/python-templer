@@ -1,28 +1,27 @@
-# start nginx in no daemon mode so the supervisor can handle it
-daemon                       off;
-pid                          /var/run/nginx.pid;
-user                         www-data;
+# start nginx in no daemon mode so the init process can handle it
+pid                          /run/nginx/nginx.pid;
+#user                         www-data;
 worker_processes             {{ NGINX_WORKER_PROCESSES }};
 # num of opened files per worker
 worker_rlimit_nofile         {{ NGINX_WORKER_OPENED_FILES }};
 
+# Enables the use of JIT for regular expressions to speed-up their processing.
+pcre_jit on;
 
+error_log                /var/lib/nginx/logs/error.log    warn;
 
 ###################################################
 # Activated Dynamic Modules
 ###################################################
 
 {% set modules = [(NGINX_LOAD_NDK_HTTP_MODULE, 'ndk_http_module.so'),
-    (NGINX_LOAD_NGX_HTTP_AUTH_PAM_MODULE, 'ngx_http_auth_pam_module.so'),
     (NGINX_LOAD_NGX_HTTP_CACHE_PURGE_MODULE, 'ngx_http_cache_purge_module.so'),
-    (NGINX_LOAD_NGX_HTTP_ECHO_MODULE, 'ngx_http_echo_module.so'),
     (NGINX_LOAD_NGX_HTTP_FANCYINDEX_MODULE, 'ngx_http_fancyindex_module.so'),
-    (NGINX_LOAD_NGX_HTTP_GEOIP_MODULE, 'ngx_http_geoip_module.so'),
     (NGINX_LOAD_NGX_HTTP_HEADERS_MORE_FILTER_MODULE, 'ngx_http_headers_more_filter_module.so'),
     (NGINX_LOAD_NGX_HTTP_IMAGE_FILTER_MODULE, 'ngx_http_image_filter_module.so'),
     (NGINX_LOAD_NGX_HTTP_LUA_MODULE, 'ngx_http_lua_module.so'),
     (NGINX_LOAD_NGX_HTTP_PERL_MODULE, 'ngx_http_perl_module.so'),
-    (NGINX_LOAD_NGX_HTTP_SUBS_FILTER_MODULE, 'ngx_http_subs_filter_module.so'),
+    (NGINX_LOAD_NGX_HTTP_REDIS2_MODULE, 'ngx_http_redis2_module.so'),
     (NGINX_LOAD_NGX_HTTP_UPLOADPROGRESS_MODULE, 'ngx_http_uploadprogress_module.so'),
     (NGINX_LOAD_NGX_HTTP_UPSTREAM_FAIR_MODULE, 'ngx_http_upstream_fair_module.so'),
     (NGINX_LOAD_NGX_HTTP_XSLT_FILTER_MODULE, 'ngx_http_xslt_filter_module.so'),
@@ -30,11 +29,11 @@ worker_rlimit_nofile         {{ NGINX_WORKER_OPENED_FILES }};
     (NGINX_LOAD_NGX_NCHAN_MODULE, 'ngx_nchan_module.so'),
     (NGINX_LOAD_NGX_STREAM_MODULE, 'ngx_stream_module.so'),]
 -%}
+
 {% for load, module in modules -%}
 {%- if load %}load_module "/usr/lib/nginx/modules/{{ module }}";
 {% endif -%}
 {% endfor %}
-
 
 
 ###################################################
@@ -45,7 +44,6 @@ events {
     worker_connections       {{ NGINX_WORKER_CONNECTIONS }};
     multi_accept             {{ 'on' if NGINX_MULTI_ACCEPT else 'off' }};
 }
-
 
 
 ###################################################
@@ -66,13 +64,12 @@ http {
     default_type             application/octet-stream;
 
     # maximal allowed size of the client request body
-    client_max_body_size     {{ NGINX_CLIENT_MAX_BODY_SIZE | default(MAX_UPLOAD_FILESIZE) }};
+    client_max_body_size     {{ NGINX_CLIENT_MAX_BODY_SIZE | default(NGINX_MAX_UPLOAD_FILESIZE) }};
 
     ignore_invalid_headers   on;
     types_hash_max_size      2048;
     # server_names_hash_bucket_size 64;
     # server_name_in_redirect off;
-
 
 
     ###############################################
@@ -107,7 +104,7 @@ http {
     large_client_header_buffers  {{ NGINX_LARGE_CLIENT_HEADER_BUFFERS_NUMBER }} {{ NGINX_LARGE_CLIENT_HEADER_BUFFERS_SIZE }};
     # when a request body is larger than the buffer size, it is written to a temporary file
     client_body_buffer_size  {{ NGINX_CLIENT_BODY_BUFFER_SIZE }};
-    client_body_temp_path    /var/nginx/client_body_temp;
+    client_body_temp_path    /var/lib/nginx/client_body_temp;
     # buffers used for reading a response from a disk.
     output_buffers           {{ NGINX_OUTPUT_BUFFERS_NUMBER }} {{ NGINX_OUTPUT_BUFFERS_SIZE }};
     # transmission of client data will be postponed until nginx has at least size bytes of data to send
@@ -124,7 +121,6 @@ http {
     open_file_cache_errors   off;
 
 
-
     ###############################################
     # Logging Settings
     ###############################################
@@ -136,9 +132,7 @@ http {
 
     # the logfiles are (linked) forwarded to stdout resp. stderr so they will be
     # collected by supervisor
-    access_log               /var/log/nginx/access.log   logstash;
-    error_log                /var/log/nginx/error.log    warn;
-
+    access_log               /var/lib/nginx/logs/access.log   logstash;
 
 
     ###############################################
@@ -157,7 +151,6 @@ http {
     gzip_buffers             16 8k;
     gzip_http_version        1.1;
     gzip_types               text/css text/plain text/xml text/x-component application/atom+xml application/javascript application/x-javascript application/json application/xml+rss application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/svg+xml image/x-icon;
-
 
 
     ###############################################
@@ -187,12 +180,11 @@ http {
     # Diffie-Hellman parameter
     ssl_dhparam              /etc/ssl/private/dhparam.pem;
     {%- endif %}
-    {% if NGINX_TLS_ONLY -%}
+    {% if NGINX_REWRITE_HTTPS -%}
 
     # HSTS: enforce the use of HTTPS
     add_header               Strict-Transport-Security "max-age=31536000; includeSubDomains";
     {%- endif %}
-
 
 
     ###############################################
@@ -212,7 +204,6 @@ http {
     }
 
 
-
     ###############################################
     # Basic DoS prevention
     ###############################################
@@ -228,16 +219,8 @@ http {
         1 $binary_remote_addr;
         0 "";
     }
-
-    # (reserve 5m of memory for states of various keys)
-    # zone for limiting concurrent connections per ip
-    limit_conn_zone          $limit zone=conn_limit_per_ip:5m;
     limit_conn_status        429;
-    # zone for limiting requests per second per ip
-    limit_req_zone           $limit zone=req_limit_per_ip:5m rate={{ NGINX_REQ_LIMIT_PER_IP_RATE }}r/s;
     limit_req_status         429;
-
-
 
     ###############################################
     # Other

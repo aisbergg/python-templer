@@ -1,24 +1,34 @@
 ---
 
 defaults:
-  # defaults for PHP
   PHP_MAX_EXECUTION_TIME: 300
   PHP_MAX_INPUT_TIME: 60
   PHP_MEMORY_LIMIT: "128M"
   PHP_MAX_FILE_UPLOADS: 40
   PHP_OUTPUT_BUFFERING: 4096
   PHP_USER_INI_ENABLED: true
-  # - PHP_POST_MAX_SIZE: defaults to (MAX_UPLOAD_FILESIZE + 16M)
-  # - PHP_UPLOAD_MAX_FILESIZE: defaults to MAX_UPLOAD_FILESIZE
+  # PHP_POST_MAX_SIZE: defaults to (NGINX_MAX_UPLOAD_FILESIZE + 16M)
+  # PHP_UPLOAD_MAX_FILESIZE: defaults to NGINX_MAX_UPLOAD_FILESIZE
 
-  # defaults for APC
+  # FPM
+  PHP_FPM_LOG_LEVEL:
+    type: choice
+    default: warning
+    choices:
+      - "alert"
+      - "error"
+      - "warning"
+      - "notice"
+      - "debug"
+
+  # Extension: APC
   APC_ENABLED: 1
   APC_ENABLE_CLI: 1
   APC_SHM_SIZE: "32M"
   APC_TTL: 7200
   APC_GC_TTL: 7200
 
-  # defaults for OPCache
+  # Extension: OPCache
   OPCACHE_ENABLE: 1
   OPCACHE_ENABLE_CLI: 1
   OPCACHE_MEMORY_CONSUMPTION: 64

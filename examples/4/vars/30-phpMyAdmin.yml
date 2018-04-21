@@ -5,8 +5,6 @@ NGINX_LOAD_NDK_HTTP_MODULE: True
 NGINX_LOAD_NGX_HTTP_LUA_MODULE: True
 NGINX_LOAD_NGX_HTTP_HEADERS_MORE_FILTER_MODULE: True
 
-PHPMYADMIN_BLOWFISH_SECRET: "{{ BLOWFISH_SECRET }}"
-
 defaults:
   ######################################
   ## Nginx
@@ -15,11 +13,8 @@ defaults:
   NGINX_WORKER_CONNECTIONS: 512
   NGINX_WORKER_OPENED_FILES: 2000
   NGINX_FASTCGI_READ_TIMEOUT: 600
-  MAX_UPLOAD_FILESIZE: 1024M
-  NGINX_CONN_LIMIT_PER_IP: 10
-  NGINX_REQ_LIMIT_PER_IP_RATE: 10
-  NGINX_REQ_LIMIT_PER_IP_BURST: 20
-  NGINX_TLS_ONLY: True
+  NGINX_MAX_UPLOAD_FILESIZE: 1024M
+  NGINX_REWRITE_HTTPS: True
 
   ######################################
   ## PHP
@@ -36,7 +31,6 @@ defaults:
   PHPMYADMIN_AUTH_TYPE:
     type: choice
     default: cookie
-    case_sensitive: False
     choices:
       - "config"
       - "cookie"
@@ -73,7 +67,6 @@ defaults:
   PHPMYADMIN_ROWACTIONTYPE:
     type: choice
     default: both
-    case_sensitive: False
     choices:
       - "both"
       - "icons"
@@ -91,7 +84,6 @@ defaults:
   PHPMYADMIN_PROTECTBINARY:
     type: choice
     default: blob
-    case_sensitive: False
     choices:
       - "blob"
       - "false"
@@ -100,7 +92,6 @@ defaults:
   PHPMYADMIN_DEFAULTLANG:
     type: choice
     default: en
-    case_sensitive: False
     choices:
       - "af"
       - "ar"
@@ -194,7 +185,6 @@ defaults:
   PHPMYADMIN_SENDERRORREPORTS:
     type: choice
     default: never
-    case_sensitive: False
     choices:
       - "always"
       - "ask"

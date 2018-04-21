@@ -195,27 +195,30 @@ Multiple templates can be rendered at ones by either providing paths to multiple
 ### Examples
 
 Render a single template file using only the environment variables (`examples/1`):
-```
+```bash
 NOUN=fool templer -f template.ini.j2 rendered.ini
 ```
 
 Render multiple templates with the use of a context file (`examples/2`):
-```
+```bash
 templer -f -c context.yml templates/ rendered/
 ```
 
 A fully featured example that is described in the [Context File section](#context-files) (`examples/3`):
-```
+```bash
 VAR4=ui VAR5=True VAR8=3 VAR11=b VAR12="1,2,3" LARGE=0 templer -d -f -c context.yml template.ini.j2 rendered.ini
 ```
 
 An example that is used in production (`examples/4`):
-```
+```bash
+export NGINX_TLS_CERT=''
+export NGINX_TLS_KEY=''
+export PHPMYADMIN_BLOWFISH_SECRET="$( </dev/urandom tr -dc '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%' | head -c40; echo "")"
 templer -d -f -t -c vars/ templates/ rendered/
 ```
 
 The `mandatory` filter in action (`examples/5`):
-```
+```bash
 templer -d -c context.yml -f template.ini.j2 rendered.ini
 ```
 

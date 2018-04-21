@@ -1,21 +1,25 @@
 ---
 
 defaults:
+  ######################################
+  ## General
+  ######################################
   DOMAINNAMES:
     type: list
     delimiter: ','
+    strip: true
     default: []
 
-  LOGGING_NGINX_HOST: "127.0.0.1"
-  LOGGING_NGINX_PORT: 20
-
-  # basic config
+  ######################################
+  ## Nginx
+  ######################################
+  # Basic config
   NGINX_MULTI_ACCEPT: false
   NGINX_WORKER_PROCESSES: 1
   NGINX_WORKER_OPENED_FILES: 20000
   NGINX_WORKER_CONNECTIONS: 1024
-  MAX_UPLOAD_FILESIZE: 64M
-  # - NGINX_CLIENT_MAX_BODY_SIZE: defaults to MAX_UPLOAD_FILESIZE
+  NGINX_MAX_UPLOAD_FILESIZE: 64M
+  # - NGINX_CLIENT_MAX_BODY_SIZE: defaults to NGINX_MAX_UPLOAD_FILESIZE
   NGINX_KEEPALIVE_TIMEOUT: 30
   NGINX_KEEPALIVE_REQUESTS: 2000
   NGINX_CLIENT_HEADER_TIMEOUT: 15
@@ -42,29 +46,24 @@ defaults:
       - "2.0"
 
   # TLS related
-  NGINX_TLS_TERMINATED: true
-  NGINX_TLS_ONLY: false
-  NGINX_BEHIND_PROXY: true
-  NGINX_TLS_KEY: ""
-  NGINX_TLS_CERT: ""
+  NGINX_TLS_TERMINATED: false
+  NGINX_REWRITE_HTTPS: false
+  NGINX_REWRITE_HTTPS_PORT: 443
+  NGINX_BEHIND_PROXY: false
+  # NGINX_TLS_KEY: "/etc/ssl/private/key.pem"
+  # NGINX_TLS_CERT: "/etc/ssl/private/cert.pem"
+  # NGINX_DHPARAM: "/etc/ssl/private/dhparam.pem"
+  # NGINX_DHPARAM_SIZE: 512
 
-  # limit requests
-  NGINX_CONN_LIMIT_PER_IP: 10
-  NGINX_REQ_LIMIT_PER_IP_RATE: 7
-  NGINX_REQ_LIMIT_PER_IP_BURST: 15
-
-  # modules
+  # Modules
   NGINX_LOAD_NDK_HTTP_MODULE: false
-  NGINX_LOAD_NGX_HTTP_AUTH_PAM_MODULE: false
   NGINX_LOAD_NGX_HTTP_CACHE_PURGE_MODULE: false
-  NGINX_LOAD_NGX_HTTP_ECHO_MODULE: false
   NGINX_LOAD_NGX_HTTP_FANCYINDEX_MODULE: false
-  NGINX_LOAD_NGX_HTTP_GEOIP_MODULE: false
   NGINX_LOAD_NGX_HTTP_HEADERS_MORE_FILTER_MODULE: false
   NGINX_LOAD_NGX_HTTP_IMAGE_FILTER_MODULE: false
   NGINX_LOAD_NGX_HTTP_LUA_MODULE: false
+  NGINX_LOAD_NGX_HTTP_REDIS2_MODULE: false
   NGINX_LOAD_NGX_HTTP_PERL_MODULE: false
-  NGINX_LOAD_NGX_HTTP_SUBS_FILTER_MODULE: false
   NGINX_LOAD_NGX_HTTP_UPLOADPROGRESS_MODULE: false
   NGINX_LOAD_NGX_HTTP_UPSTREAM_FAIR_MODULE: false
   NGINX_LOAD_NGX_HTTP_XSLT_FILTER_MODULE: false
