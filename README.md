@@ -214,6 +214,11 @@ An example that is used in production (`examples/4`):
 templer -d -f -t -c vars/ templates/ rendered/
 ```
 
+The `mandatory` filter in action (`examples/5`):
+```
+templer -d -c context.yml -f template.ini.j2 rendered.ini
+```
+
 More real life examples can be found in those [Dockerfiles](https://github.com/Aisbergg/dockerfiles) where *Templer* is used extensively.
 
 ## Extra Jinja2 Filters

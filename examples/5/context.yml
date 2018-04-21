@@ -1,0 +1,4 @@
+---
+# see README.md for documentation
+
+mandatory_var: "{{ MANDATORY_VAR | mandatory('The variable \'MANDATORY_VAR\' is missing!') }}"
