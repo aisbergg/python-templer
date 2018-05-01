@@ -2,7 +2,7 @@
 
 __author__ = "Andre Lehmann"
 __email__ = "aisberg@posteo.de"
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 from templer.cli import cli
 

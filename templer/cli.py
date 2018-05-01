@@ -316,7 +316,7 @@ class ContextFile(object):
                 Log.debug("Rendering context file...")
                 file_content = env.from_string(file_content).render(variables)
             except jinja_filter.MandatoryError as e:
-                raise   
+                raise
             except jinja2.UndefinedError as e:
                 raise jinja2.exceptions.UndefinedError(
                     self._format_error("Variable {0}".format(str(e.message))))
@@ -575,7 +575,11 @@ class ContextFile(object):
             strip = options['strip'] if 'strip' in options else True
 
             if name in variables:
-                if strip:
+                # split(delimiter) does not necessarily retrun an empty list
+                # when the string is empty therefore check string first
+                if variables[name] == '':
+                    return []
+                elif strip:
                     return list(map((lambda s: s.strip()), variables[name].split(delimiter)))
                 else:
                     return variables[name].split(delimiter)
