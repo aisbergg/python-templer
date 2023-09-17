@@ -1,5 +1,7 @@
 # Templer - templating with Jinja2
 
+> **Note: This project has been left without ongoing maintenance. I'd like to point out that the code is relatively dated and no longer aligns with my current coding standards.**
+
 This is a Python 3 module for rendering template files using [Jinja2](http://jinja.pocoo.org/). Sources for variables is the environment and context files.
 
 The documentation of the Jinja2 syntax can be found [here](http://jinja.pocoo.org/docs/dev/templates/).
@@ -16,10 +18,10 @@ The documentation of the Jinja2 syntax can be found [here](http://jinja.pocoo.or
 
 - [Installation](#installation)
 - [Usage](#usage)
-	- [Environment Variables](#environment-variables)
-	- [Context Files](#context-files)
-	- [Templates](#templates)
-	- [Examples](#examples)
+    - [Environment Variables](#environment-variables)
+    - [Context Files](#context-files)
+    - [Templates](#templates)
+    - [Examples](#examples)
 - [Extra Jinja2 Filters](#extra-jinja2-filters)
 - [License](#license)
 

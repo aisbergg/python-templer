@@ -329,7 +329,7 @@ class ContextFile(object):
 
         try:
             Log.debug("Parsing context file...")
-            parsed_context = yaml.load(file_content) or dict()
+            parsed_context = yaml.safe_load(file_content) or dict()
         except yaml.YAMLError as e:
             if hasattr(e, 'problem_mark'):
                 mark = e.problem_mark

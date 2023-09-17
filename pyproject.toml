@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "templer"
+version = "1.1.5"
+description = "Jinja2 templating command-line CLI"
+authors = ["André Lehmann <aisberg@posteo.de>"]
+license = "LGPL"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+jinja2 = "^3.1.2"
+pyyaml = "^6.0.1"
+
+[tool.poetry.scripts]
+templer = "templer.cli:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
